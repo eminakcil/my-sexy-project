@@ -1,0 +1,38 @@
+name: Deploy Monorepo
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18
+
+    - name: Install Dependencies
+      run: pnpm install
+
+    - name: Build Frontend
+      run: pnpm --filter frontend build
+
+    - name: Deploy Backend
+      run: |
+        cd apps/backend
+        pm2 restart server.js
+
+    - name: Deploy Frontend
+      run: |
+        cd apps/frontend
+        pm2 restart next.config.js
